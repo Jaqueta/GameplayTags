@@ -56,13 +56,6 @@ The value of that property is another object, which may optionally include metad
 Tags can also be created directly in the **Unity Editor**.
 The editor will generate the corresponding JSON file automatically and insert the tag for you *(creating the file if necessary)*.
 
-<div align="center">
-    <img src="Documentation~/Images/Placeholder.png" alt="Editor Placeholder">
-    <p><em>[Placeholder — here goes the screenshot showing where to add tags in the Editor]</em></p>
-</div>
-
----
-
 ### 3. Registering Tags with Assembly Attributes
 
 The third option is to declare tags directly in your assembly using attributes:
