@@ -35,12 +35,13 @@ namespace BandoWare.GameplayTags
       {
          return Application.platform switch
          {
-            RuntimePlatform.Android => LoadDataFromAndroidPackage(dataPath),
+            RuntimePlatform.WebGLPlayer => LoadDataFromWebRequest(dataPath),
+            RuntimePlatform.Android => LoadDataFromWebRequest(dataPath),
             _ => LoadDataFromFile(dataPath),
          };
       }
 
-      private byte[] LoadDataFromAndroidPackage(string dataPath)
+      private byte[] LoadDataFromWebRequest(string dataPath)
       {
          using UnityWebRequest request = UnityWebRequest.Get(dataPath);
          UnityWebRequestAsyncOperation operation = request.SendWebRequest();

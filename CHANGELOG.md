@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed GameplayTags not loading from StreamingAssets on Android (APK/AAB)
+- Fixed GameplayTags not loading from StreamingAssets on WebGL
 
 ## [0.1.0-beta.8] - 2025-09-22
 
