@@ -8,113 +8,100 @@ namespace BandoWare.GameplayTags
       public static bool HasTag<T>(this T container, GameplayTag gameplayTag)
          where T : IReadOnlyGameplayTagContainer
       {
-         return container.Indices.Implicit != null && BinarySearchUtility.Search(container.Indices.Implicit, gameplayTag.RuntimeIndex) >= 0;
+         return container.Indices.Implicit != null
+            && BinarySearchUtility.Search(container.Indices.Implicit, gameplayTag.RuntimeIndex) >= 0;
       }
 
       public static bool HasTagExact<T>(this T container, GameplayTag gameplayTag)
          where T : IReadOnlyGameplayTagContainer
       {
-         return container.Indices.Explicit != null && BinarySearchUtility.Search(container.Indices.Explicit, gameplayTag.RuntimeIndex) >= 0;
+         return container.Indices.Explicit != null
+            && BinarySearchUtility.Search(container.Indices.Explicit, gameplayTag.RuntimeIndex) >= 0;
       }
 
       public static bool HasAny<T, U>(this T container, in U other)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
       {
          return HasAnyInternal(container.Indices.Implicit, other?.Indices.Explicit);
       }
 
       public static bool HasAnyExact<T, U>(this T container, in U other)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
       {
          return HasAnyInternal(container.Indices.Explicit, other?.Indices.Explicit);
       }
 
-      private static bool HasAnyInternal(List<int> tagIndices, List<int> otherTagIndices)
+      private static bool HasAnyInternal(List<int> a, List<int> b)
       {
-         if (otherTagIndices == null || otherTagIndices.Count == 0 || tagIndices == null || tagIndices.Count == 0)
+         if (a is null or { Count: 0 } || b is null or { Count: 0 })
             return false;
 
-         int start = BinarySearchUtility.Search(tagIndices, otherTagIndices[0], 0, tagIndices.Count - 1);
-         if (start >= 0)
-            return true;
+         // Early-out by range
+         if (a[^1] < b[0] || b[^1] < a[0])
+            return false;
 
-         start = ~start;
-
-         int end = BinarySearchUtility.Search(tagIndices, otherTagIndices[^1], start, tagIndices.Count - 1);
-         if (end >= 0)
-            return true;
-
-         end = ~end;
-
-         int j = 1;
-         int i = start + 1;
-         while (i < end && j < otherTagIndices.Count)
+         int i = 0, j = 0;
+         while (i < a.Count && j < b.Count)
          {
-            if (otherTagIndices[j] == tagIndices[i])
+            int av = a[i];
+            int bv = b[j];
+
+            if (av == bv)
                return true;
-
-            if (tagIndices[i] > otherTagIndices[j])
-            {
+            if (av < bv)
                i++;
-               continue;
-            }
-
-            j++;
-            while (otherTagIndices[j] < tagIndices[i])
-            {
+            else
                j++;
-               if (j == end)
-                  return false;
-            }
          }
 
          return false;
       }
 
-      private static bool HasAllInternal(List<int> tagIndices, List<int> otherTagIndices)
+      private static bool HasAllInternal(List<int> a, List<int> b)
       {
-         if (otherTagIndices == null || otherTagIndices.Count == 0)
+         if (b is null or { Count: 0 })
             return true;
 
-         if (tagIndices == null || tagIndices.Count == 0)
+         if (a is null or { Count: 0 })
             return false;
 
-         int start = BinarySearchUtility.Search(tagIndices, otherTagIndices[0], 0, tagIndices.Count - 1);
-         if (start < 0)
+         // Early-out by range
+         if (b[0] < a[0] || b[^1] > a[^1])
             return false;
 
-         if (otherTagIndices.Count == 1)
-            return true;
-
-         int end = BinarySearchUtility.Search(tagIndices, otherTagIndices[^1], 0, tagIndices.Count - 1);
-         if (end < 0)
-            return false;
-
-         int j = 1;
-         end--;
-         for (int i = start + 1; i < end; i++)
+         int i = 0, j = 0;
+         while (i < a.Count && j < b.Count)
          {
-            if (otherTagIndices[j] == tagIndices[i])
+            int av = a[i];
+            int bv = b[j];
+
+            if (av == bv)
             {
                j++;
-               continue;
+               i++;
             }
-
-            if (otherTagIndices[j] > tagIndices[i])
+            else if (av < bv)
+               i++;
+            else
                return false;
          }
 
-         return j == otherTagIndices.Count - 1;
+         return j == b.Count;
       }
 
       public static bool HasAll<T, U>(this T container, in U other)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
       {
          return HasAllInternal(container.Indices.Implicit, other?.Indices.Explicit);
       }
 
       public static bool HasAll<T, U, V>(this T container, in U otherA, in V otherB)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer where V : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
+         where V : IReadOnlyGameplayTagContainer
       {
          if (otherA.IsEmpty && otherB.IsEmpty)
             return true;
@@ -136,7 +123,8 @@ namespace BandoWare.GameplayTags
       }
 
       public static bool HasAllExact<T, U>(this T container, in U other)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
       {
          return HasAllInternal(container.Indices.Explicit, other?.Indices.Explicit);
       }
