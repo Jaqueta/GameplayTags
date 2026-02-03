@@ -66,14 +66,29 @@ namespace BandoWare.GameplayTags
 
       public void RegisterTags(GameplayTagRegistrationContext context)
       {
+         TagInFile[] tagsInFile;
          try
          {
-            foreach (TagInFile tag in GetAllTags())
-               context.RegisterTag(tag.Name, tag.Comment, GameplayTagFlags.None, this);
+            tagsInFile = Enumerable.ToArray(GetAllTags());
          }
          catch (Exception ex)
          {
-            Debug.LogError($"Failed to fetch tags from file '{FilePath}': {ex.Message}");
+            Debug.LogError($"Failed to fetch tags from file '{FilePath}'. See exception for details.");
+            Debug.LogException(ex);
+            return;
+         }
+
+         foreach (TagInFile tag in tagsInFile)
+         {
+            try
+            {
+               context.RegisterTag(tag.Name, tag.Comment, GameplayTagFlags.None, this);
+            }
+            catch (Exception ex)
+            {
+               Debug.LogError($"Failed to register tag '{tag.Name}' from file '{FilePath}'. See exception for details.");
+               Debug.LogException(ex);
+            }
          }
       }
 
@@ -113,6 +128,10 @@ namespace BandoWare.GameplayTags
       private void SaveFile()
       {
          string fileContent = m_Root.ToString();
+
+         // make sure the directory exists
+         Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
+
          File.WriteAllText(FilePath, fileContent);
       }
 
