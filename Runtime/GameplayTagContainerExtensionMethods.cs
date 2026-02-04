@@ -1,10 +1,38 @@
 ﻿using System.Collections.Generic;
-using UnityEngine.Pool;
+using UnityEngine;
 
 namespace BandoWare.GameplayTags
 {
    public static class GameplayTagContainerExtensionMethods
    {
+      public static bool TryGetSingleChildTag<T>(this T container, GameplayTag parentTag,
+         out GameplayTag childTag, bool warnIfMultiple = true)
+         where T : IReadOnlyGameplayTagContainer
+      {
+         using (FastListPool<GameplayTag>.Get(out List<GameplayTag> childTags))
+         {
+            container.GetChildTags(parentTag, childTags);
+            if (childTags.Count == 1)
+            {
+               childTag = childTags[0];
+               return true;
+            }
+
+            if (childTags.Count > 1 && warnIfMultiple)
+            {
+               Debug.LogWarning($"Multiple child tags found for parent tag '{parentTag}'." +
+                  $" Returning the first one. Consider using GetChildTags() instead.");
+
+               childTag = childTags[0];
+               return true;
+            }
+
+
+            childTag = default;
+            return false;
+         }
+      }
+
       public static bool HasTag<T>(this T container, GameplayTag gameplayTag)
          where T : IReadOnlyGameplayTagContainer
       {
@@ -112,7 +140,7 @@ namespace BandoWare.GameplayTags
          if (otherB.IsEmpty)
             return HasAll(container, otherA);
 
-         using (GenericPool<GameplayTagContainer>.Get(out GameplayTagContainer intersection))
+         using (GameplayTagContainerPool.Get(out GameplayTagContainer intersection))
          {
             intersection.AddIntersection(otherA, otherB);
             bool hasAll = HasAll(container, intersection);

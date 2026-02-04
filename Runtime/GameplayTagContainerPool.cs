@@ -25,7 +25,8 @@ namespace BandoWare.GameplayTags
       private static readonly ObjectPool<GameplayTagContainer> s_Instance = new
       (
          CreateContainer,
-         actionOnRelease: OnReleaseContainer
+         actionOnRelease: OnReleaseContainer,
+         collectionCheck: false
       );
 
 

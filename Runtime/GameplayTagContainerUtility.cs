@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
-using UnityEngine.Pool;
 
 namespace BandoWare.GameplayTags
 {
    public static class GameplayTagContainerUtility
    {
       public static bool HasAll<T, U, V>(this T containerA, in U containerB, in V other)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer where V : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
+         where V : IReadOnlyGameplayTagContainer
       {
          if (containerA.IsEmpty && containerB.IsEmpty)
             return true;
@@ -17,7 +18,7 @@ namespace BandoWare.GameplayTags
          if (containerB.IsEmpty)
             return containerA.HasAll(other);
 
-         using (GenericPool<GameplayTagContainer>.Get(out GameplayTagContainer intersection))
+         using (GameplayTagContainerPool.Get(out GameplayTagContainer intersection))
          {
             intersection.AddIntersection(containerA, containerB);
             bool hasAll = intersection.HasAll(other);
@@ -28,7 +29,9 @@ namespace BandoWare.GameplayTags
       }
 
       public static bool HasAllExact<T, U, V>(this T containerA, in U containerB, in V other)
-         where T : IReadOnlyGameplayTagContainer where U : IReadOnlyGameplayTagContainer where V : IReadOnlyGameplayTagContainer
+         where T : IReadOnlyGameplayTagContainer
+         where U : IReadOnlyGameplayTagContainer
+         where V : IReadOnlyGameplayTagContainer
       {
          if (containerA.IsEmpty && containerB.IsEmpty)
             return true;
@@ -39,7 +42,7 @@ namespace BandoWare.GameplayTags
          if (containerB.IsEmpty)
             return containerA.HasAllExact(other);
 
-         using (GenericPool<GameplayTagContainer>.Get(out GameplayTagContainer intersection))
+         using (GameplayTagContainerPool.Get(out GameplayTagContainer intersection))
          {
             intersection.AddIntersection(containerA, containerB);
             bool hasAllExact = intersection.HasAllExact(other);
@@ -53,13 +56,14 @@ namespace BandoWare.GameplayTags
       {
          tag.ValidateIsValid();
 
-         int index = tagIndices.BinarySearch(tag.RuntimeIndex);
+         int index = BinarySearchUtility.Search(tagIndices, tag.RuntimeIndex);
          if (index < 0)
             index = ~index;
 
          for (int i = index - 1; i >= 0; i--)
          {
-            GameplayTagDefinition otherTagDefinition = GameplayTagManager.GetDefinitionFromRuntimeIndex(tagIndices[i]);
+            GameplayTagDefinition otherTagDefinition
+               = GameplayTagManager.GetDefinitionFromRuntimeIndex(tagIndices[i]);
 
             if (!otherTagDefinition.IsParentOf(tag))
                break;
@@ -72,12 +76,16 @@ namespace BandoWare.GameplayTags
       {
          tag.ValidateIsValid();
 
-         int index = tagIndices.BinarySearch(tag.RuntimeIndex);
+         if (tagIndices == null)
+            return;
+
+         int index = BinarySearchUtility.Search(tagIndices, tag.RuntimeIndex);
          index = index < 0 ? ~index : index + 1;
 
          for (int i = index; i < tagIndices.Count; i++)
          {
-            GameplayTagDefinition otherTagDefinition = GameplayTagManager.GetDefinitionFromRuntimeIndex(tagIndices[i]);
+            GameplayTagDefinition otherTagDefinition
+               = GameplayTagManager.GetDefinitionFromRuntimeIndex(tagIndices[i]);
 
             if (!otherTagDefinition.IsChildOf(tag))
                break;
