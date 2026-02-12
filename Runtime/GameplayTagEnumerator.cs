@@ -9,8 +9,7 @@ namespace BandoWare.GameplayTags
       {
          get
          {
-            GameplayTagDefinition definition = GameplayTagManager.GetDefinitionFromRuntimeIndex(m_Indices[m_CurrentIndex]);
-            return definition.Tag;
+            return GameplayTagManager.GetTagFromRuntimeIndex(m_Indices[m_CurrentIndex]);
          }
       }
 

@@ -19,7 +19,7 @@ namespace BandoWare.GameplayTags
 
       public readonly bool IsLeaf => m_Definition != null && m_Definition.Children.Length == 0;
 
-      internal readonly int RuntimeIndex => m_Definition.RuntimeIndex;
+      public readonly int RuntimeIndex => m_Definition.RuntimeIndex;
 
       internal readonly GameplayTagDefinition Definition => m_Definition ?? GameplayTagDefinition.NoneTagDefinition;
 
