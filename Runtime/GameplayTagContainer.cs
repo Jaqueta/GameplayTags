@@ -548,6 +548,18 @@ namespace BandoWare.GameplayTags
          }
       }
 
+      public void FillSerializedTags()
+      {
+         m_SerializedExplicitTags ??= new List<string>();
+
+         m_SerializedExplicitTags.Clear();
+         for (int i = 0; i < m_Indices.Explicit.Count; i++)
+         {
+            GameplayTagDefinition definition = GameplayTagManager.GetDefinitionFromRuntimeIndex(m_Indices.Explicit[i]);
+            m_SerializedExplicitTags.Add(definition.TagName);
+         }
+      }
+
       void ISerializationCallbackReceiver.OnBeforeSerialize()
       {
       }
