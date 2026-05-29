@@ -10,11 +10,17 @@ namespace BandoWare.GameplayTags.Editor
       private static GUIContent s_TempContent = new();
       private SerializedProperty m_ExplicitTagsProperty;
 
-      public GameplayTagContainerTreeView(TreeViewState treeViewState, SerializedProperty explicitTagsProperty)
+      public GameplayTagContainerTreeView(TreeViewState treeViewState, SerializedProperty explicitTagsProperty, string parentTagFilter = null)
          : base(treeViewState)
       {
          m_ExplicitTagsProperty = explicitTagsProperty;
          m_ExplicitTagsProperty.serializedObject.Update();
+
+         if (!string.IsNullOrEmpty(parentTagFilter))
+         {
+            SetParentTagFilter(parentTagFilter);
+            Reload();
+         }
 
          ExpandIncludedTagItems();
          UpdateIncludedTags();

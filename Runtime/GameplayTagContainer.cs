@@ -604,4 +604,18 @@ namespace BandoWare.GameplayTags
          return GetEnumerator();
       }
    }
+
+   /// <summary>
+   /// When placed on a <see cref="GameplayTagContainer"/> field, restricts the tag picker popup
+   /// to only show descendants of the specified parent tag name.
+   /// </summary>
+   public sealed class ShowOnlyChildTagOfAttribute : UnityEngine.PropertyAttribute
+   {
+      public string ParentTagName { get; }
+
+      public ShowOnlyChildTagOfAttribute(string parentTagName)
+      {
+         ParentTagName = parentTagName;
+      }
+   }
 }

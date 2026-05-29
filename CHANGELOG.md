@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `ShowOnlyChildTagOfAttribute` (`[ShowOnlyChildTagOf("ParentTag")]`) — a `PropertyAttribute` that, when placed on a `GameplayTagContainer` field, restricts the tag picker popup to only show descendants of the specified parent tag.
+
 ### Changed
 
 - Replaced Unity `ListPool` and `GenericPool` with a custom pooling implementation using `collectionChecks: false` for improved performance.
