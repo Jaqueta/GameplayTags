@@ -38,7 +38,11 @@ namespace BandoWare.GameplayTags.Editor
 
          if (EditorGUI.DropdownButton(position, s_TempContent, FocusType.Keyboard))
          {
+#if UNITY_6000_5_OR_NEWER
+            GameplayTagTreeView tagTreeView = new(new TreeViewState<int>(), property, static () =>
+#else
             GameplayTagTreeView tagTreeView = new(new TreeViewState(), property, static () =>
+#endif
             {
                EditorWindow.GetWindow<PopupWindow>().Close();
             });

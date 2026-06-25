@@ -87,7 +87,11 @@ namespace BandoWare.GameplayTags.Editor
          {
             if (GUI.Button(editButtonRect, s_EditTagsContent))
             {
+#if UNITY_6000_5_OR_NEWER
+               GameplayTagContainerTreeView tagTreeView = new(new TreeViewState<int>(), explicitTagsProperty);
+#else
                GameplayTagContainerTreeView tagTreeView = new(new TreeViewState(), explicitTagsProperty);
+#endif
                Rect activatorRect = editButtonRect;
                activatorRect.width = position.width;
                tagTreeView.ShowPopupWindow(activatorRect, 280f);
