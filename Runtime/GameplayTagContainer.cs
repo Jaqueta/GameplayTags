@@ -548,6 +548,18 @@ namespace BandoWare.GameplayTags
          }
       }
 
+      public void FillSerializedTags()
+      {
+         m_SerializedExplicitTags ??= new List<string>();
+
+         m_SerializedExplicitTags.Clear();
+         for (int i = 0; i < m_Indices.Explicit.Count; i++)
+         {
+            GameplayTagDefinition definition = GameplayTagManager.GetDefinitionFromRuntimeIndex(m_Indices.Explicit[i]);
+            m_SerializedExplicitTags.Add(definition.TagName);
+         }
+      }
+
       void ISerializationCallbackReceiver.OnBeforeSerialize()
       {
       }
@@ -590,6 +602,20 @@ namespace BandoWare.GameplayTags
       IEnumerator IEnumerable.GetEnumerator()
       {
          return GetEnumerator();
+      }
+   }
+
+   /// <summary>
+   /// When placed on a <see cref="GameplayTagContainer"/> field, restricts the tag picker popup
+   /// to only show descendants of the specified parent tag name.
+   /// </summary>
+   public sealed class ShowOnlyChildTagOfAttribute : UnityEngine.PropertyAttribute
+   {
+      public string ParentTagName { get; }
+
+      public ShowOnlyChildTagOfAttribute(string parentTagName)
+      {
+         ParentTagName = parentTagName;
       }
    }
 }

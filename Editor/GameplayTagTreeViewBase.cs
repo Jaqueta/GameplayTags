@@ -78,6 +78,8 @@ namespace BandoWare.GameplayTags.Editor
       private bool m_IsEmpty;
       private AddNewTagPanel m_AddNewTagPanel;
       private DeleteTagPanel m_DeleteTagPanel;
+      private string m_ParentTagFilter;
+
 #if UNITY_6000_5_OR_NEWER
       public GameplayTagTreeViewBase(TreeViewState<int> treeViewState)
          : base(treeViewState)
@@ -102,6 +104,25 @@ namespace BandoWare.GameplayTags.Editor
          ToolbarGUI(toolbarRect);
 
          rect.yMin += toolbarRect.height;
+
+         if (!string.IsNullOrEmpty(m_ParentTagFilter))
+         {
+            float bannerHeight = EditorStyles.toolbar.fixedHeight;
+            Rect bannerRect = rect;
+            bannerRect.height = bannerHeight;
+            rect.yMin += bannerHeight;
+
+            EditorGUI.DrawRect(bannerRect, new Color(0.1f, 0.11f, 0.1f, 1f));
+            GUIStyle labelStyle = new(EditorStyles.miniLabel)
+            {
+               alignment = TextAnchor.MiddleCenter,
+               fontStyle = FontStyle.Bold,
+               richText = true,
+               fontSize = 11,
+               normal = { textColor = new Color(0.22f, 1f, 0.6f) }
+            };
+            GUI.Label(bannerRect, $"Filtering by parent tag: <b>{m_ParentTagFilter}</b>", labelStyle);
+         }
 
          if (m_AddNewTagPanel != null)
          {
@@ -300,6 +321,12 @@ namespace BandoWare.GameplayTags.Editor
          return false;
       }
 
+      /// <summary>Restricts the tree to only show descendants of the given tag name prefix.</summary>
+      public void SetParentTagFilter(string parentTagName)
+      {
+         m_ParentTagFilter = parentTagName;
+      }
+
 #if UNITY_6000_5_OR_NEWER
       protected override TreeViewItem<int> BuildRoot()
       {
@@ -328,12 +355,24 @@ namespace BandoWare.GameplayTags.Editor
 
          List<TreeViewItem> items = new();
 
+         bool hasFilter = !string.IsNullOrEmpty(m_ParentTagFilter);
+         string prefix = hasFilter ? m_ParentTagFilter + "." : null;
+         // dots in prefix determines depth offset: direct children start at depth 0
+         int depthOffset = hasFilter ? CountDots(prefix) : 0;
+
          foreach (GameplayTag tag in GameplayTagManager.GetAllTags())
          {
             if (tag.Name.StartsWith("Test.") || tag.Name.Equals("Test"))
                continue;
 
-            items.Add(new GameplayTagTreeViewItem(tag.RuntimeIndex, tag));
+            if (hasFilter && !tag.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+               continue;
+
+            GameplayTagTreeViewItem item = new(tag.RuntimeIndex, tag);
+            if (hasFilter)
+               item.depth = tag.HierarchyLevel - depthOffset - 1;
+
+            items.Add(item);
             m_IsEmpty = false;
          }
 
@@ -341,6 +380,14 @@ namespace BandoWare.GameplayTags.Editor
          return root;
       }
 #endif
+
+      private static int CountDots(string s)
+      {
+         int count = 0;
+         foreach (char c in s)
+            if (c == '.') count++;
+         return count;
+      }
 
       protected GameplayTagTreeViewItem FindItem(int runtimeTagIndex)
       {

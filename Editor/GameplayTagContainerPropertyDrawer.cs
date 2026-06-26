@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using BandoWare.GameplayTags;
+using System.Reflection;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -87,10 +89,14 @@ namespace BandoWare.GameplayTags.Editor
          {
             if (GUI.Button(editButtonRect, s_EditTagsContent))
             {
+               string parentTagFilter = null;
+               var filterAttrs = fieldInfo?.GetCustomAttributes(typeof(ShowOnlyChildTagOfAttribute), true);
+               if (filterAttrs != null && filterAttrs.Length > 0)
+                  parentTagFilter = ((ShowOnlyChildTagOfAttribute)filterAttrs[0]).ParentTagName;
 #if UNITY_6000_5_OR_NEWER
-               GameplayTagContainerTreeView tagTreeView = new(new TreeViewState<int>(), explicitTagsProperty);
+               GameplayTagContainerTreeView tagTreeView = new(new TreeViewState<int>(), explicitTagsProperty, parentTagFilter);
 #else
-               GameplayTagContainerTreeView tagTreeView = new(new TreeViewState(), explicitTagsProperty);
+               GameplayTagContainerTreeView tagTreeView = new(new TreeViewState(), explicitTagsProperty, parentTagFilter);
 #endif
                Rect activatorRect = editButtonRect;
                activatorRect.width = position.width;

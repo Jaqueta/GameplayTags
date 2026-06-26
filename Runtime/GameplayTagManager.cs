@@ -12,6 +12,7 @@ namespace BandoWare.GameplayTags
 
       private static Dictionary<string, GameplayTagDefinition> s_TagDefinitionsByName = new();
       private static GameplayTagDefinition[] s_TagsDefinitions;
+      private static GameplayTag[] s_TagLookUpTable;
       private static GameplayTag[] s_Tags;
       private static bool s_IsInitialized;
       private static bool s_HasBeenReloaded;
@@ -22,14 +23,20 @@ namespace BandoWare.GameplayTags
          return new ReadOnlySpan<GameplayTag>(s_Tags);
       }
 
+      public static GameplayTag GetTagFromRuntimeIndex(int runtimeIndex)
+      {
+         return s_TagLookUpTable[runtimeIndex];
+      }
+
       internal static GameplayTagDefinition GetDefinitionFromRuntimeIndex(int runtimeIndex)
       {
-         InitializeIfNeeded();
          return s_TagsDefinitions[runtimeIndex];
       }
 
       public static GameplayTag RequestTag(string name, bool logWarningIfNotFound = true)
       {
+         InitializeIfNeeded();
+
          if (string.IsNullOrEmpty(name))
             return GameplayTag.None;
 
@@ -53,11 +60,14 @@ namespace BandoWare.GameplayTags
 
       private static bool TryGetDefinition(string name, out GameplayTagDefinition definition)
       {
-         InitializeIfNeeded();
          return s_TagDefinitionsByName.TryGetValue(name, out definition);
       }
 
-      public static void InitializeIfNeeded()
+#if UNITY_EDITOR
+      [UnityEditor.InitializeOnLoadMethod]
+#endif
+      [RuntimeInitializeOnLoadMethod]
+      private static void InitializeIfNeeded()
       {
          if (s_IsInitialized)
             return;
@@ -86,16 +96,22 @@ namespace BandoWare.GameplayTags
 #endif
 
          foreach (GameplayTagRegistrationError error in context.GetRegistrationErrors())
-            Debug.LogError($"Failed to register gameplay tag \"{error.TagName}\": {error.Message} (Source: {error.Source?.Name ?? "Unknown"})");
+            Debug.LogError($"Failed to register gameplay tag \"{error.TagName}\": " +
+               $"{error.Message} (Source: {error.Source?.Name ?? "Unknown"})");
 
          s_TagsDefinitions = context.GenerateDefinitions();
 
+         IEnumerable<GameplayTag> tagLookUpTable = s_TagsDefinitions
+            .Select(definition => definition.Tag);
+
+         s_TagLookUpTable = Enumerable.ToArray(tagLookUpTable);
+
          // Skip the first tag definition which is the "None" tag.
-         IEnumerable<GameplayTag> tags = s_TagsDefinitions
+         IEnumerable<GameplayTag> tagsExcludingNone = s_TagsDefinitions
             .Select(definition => definition.Tag)
             .Skip(1);
 
-         s_Tags = Enumerable.ToArray(tags);
+         s_Tags = Enumerable.ToArray(tagsExcludingNone);
          foreach (GameplayTagDefinition definition in s_TagsDefinitions)
             s_TagDefinitionsByName[definition.TagName] = definition;
 

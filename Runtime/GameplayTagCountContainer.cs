@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using UnityEngine.Pool;
 
 namespace BandoWare.GameplayTags
 {
@@ -213,7 +212,7 @@ namespace BandoWare.GameplayTags
       {
          tag.ValidateIsValid();
 
-         using (ListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> delegates))
+         using (FastListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> delegates))
          {
             AddTagInternal(tag, delegates);
 
@@ -225,7 +224,7 @@ namespace BandoWare.GameplayTags
       /// <inheritdoc />
       public void AddTags<T>(in T other) where T : IReadOnlyGameplayTagContainer
       {
-         using (ListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> delegates))
+         using (FastListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> delegates))
          {
             foreach (GameplayTag gameplayTag in other.GetExplicitTags())
                AddTagInternal(gameplayTag, delegates);
@@ -277,7 +276,7 @@ namespace BandoWare.GameplayTags
       {
          tag.ValidateIsValid();
 
-         using (ListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> tagChangeDelegates))
+         using (FastListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> tagChangeDelegates))
          {
             RemoveTagInternal(tag, tagChangeDelegates);
 
@@ -289,7 +288,7 @@ namespace BandoWare.GameplayTags
       /// <inheritdoc />
       public void RemoveTags<T>(in T other) where T : IReadOnlyGameplayTagContainer
       {
-         using (ListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> tagChangeDelegates))
+         using (FastListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> tagChangeDelegates))
          {
             foreach (GameplayTag gameplayTag in other.GetExplicitTags())
                RemoveTagInternal(gameplayTag, tagChangeDelegates);
@@ -358,7 +357,7 @@ namespace BandoWare.GameplayTags
       /// <inheritdoc />
       public void Clear()
       {
-         using (ListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> tagChangeDelegates))
+         using (FastListPool<DeferredTagChangedDelegate>.Get(out List<DeferredTagChangedDelegate> tagChangeDelegates))
          {
             foreach (GameplayTag tag in GetTags())
             {

@@ -172,7 +172,7 @@ namespace BandoWare.GameplayTags.Editor
 
          if (m_SelectedSourceFileIndex == k_NewFileOptionIndex)
          {
-            if (m_NewSourceFileName.Length == 0)
+            if (string.IsNullOrEmpty(m_NewSourceFileName))
             {
                m_ValidationError = "Source file name cannot be empty.";
                return;
