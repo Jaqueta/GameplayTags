@@ -6,7 +6,11 @@ using UnityEngine;
 
 namespace BandoWare.GameplayTags.Editor
 {
+#if UNITY_6000_5_OR_NEWER
+   public class GameplayTagTreeViewItem : TreeViewItem<int>
+#else
    public class GameplayTagTreeViewItem : TreeViewItem
+#endif
    {
       public GameplayTag Tag => m_Tag;
 
@@ -76,8 +80,13 @@ namespace BandoWare.GameplayTags.Editor
       private DeleteTagPanel m_DeleteTagPanel;
       private string m_ParentTagFilter;
 
+#if UNITY_6000_5_OR_NEWER
+      public GameplayTagTreeViewBase(TreeViewState<int> treeViewState)
+         : base(treeViewState)
+#else
       public GameplayTagTreeViewBase(TreeViewState treeViewState)
          : base(treeViewState)
+#endif
       {
          m_SearchField = new SearchField();
          showAlternatingRowBackgrounds = true;
@@ -290,7 +299,11 @@ namespace BandoWare.GameplayTags.Editor
          return GUILayout.Button(GUIUtility.TempContent(texture, tooltip), EditorStyles.toolbarButton, GUILayout.ExpandWidth(false));
       }
 
+#if UNITY_6000_5_OR_NEWER
+      protected override bool DoesItemMatchSearch(TreeViewItem<int> item, string search)
+#else
       protected override bool DoesItemMatchSearch(TreeViewItem item, string search)
+#endif
       {
          GameplayTagTreeViewItem tagItem = item as GameplayTagTreeViewItem;
          bool nameMatches = tagItem.Tag.Name.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
@@ -314,6 +327,27 @@ namespace BandoWare.GameplayTags.Editor
          m_ParentTagFilter = parentTagName;
       }
 
+#if UNITY_6000_5_OR_NEWER
+      protected override TreeViewItem<int> BuildRoot()
+      {
+         TreeViewItem<int> root = new(-2, -1, "<Root>");
+         m_IsEmpty = true;
+
+         List<TreeViewItem<int>> items = new();
+
+         foreach (GameplayTag tag in GameplayTagManager.GetAllTags())
+         {
+            if (tag.Name.StartsWith("Test.") || tag.Name.Equals("Test"))
+               continue;
+
+            items.Add(new GameplayTagTreeViewItem(tag.RuntimeIndex, tag));
+            m_IsEmpty = false;
+         }
+
+         SetupParentsAndChildrenFromDepths(root, items);
+         return root;
+      }
+#else
       protected override TreeViewItem BuildRoot()
       {
          TreeViewItem root = new(-2, -1, "<Root>");
@@ -345,6 +379,7 @@ namespace BandoWare.GameplayTags.Editor
          SetupParentsAndChildrenFromDepths(root, items);
          return root;
       }
+#endif
 
       private static int CountDots(string s)
       {

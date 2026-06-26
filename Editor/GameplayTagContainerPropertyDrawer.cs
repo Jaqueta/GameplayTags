@@ -93,8 +93,11 @@ namespace BandoWare.GameplayTags.Editor
                var filterAttrs = fieldInfo?.GetCustomAttributes(typeof(ShowOnlyChildTagOfAttribute), true);
                if (filterAttrs != null && filterAttrs.Length > 0)
                   parentTagFilter = ((ShowOnlyChildTagOfAttribute)filterAttrs[0]).ParentTagName;
-
+#if UNITY_6000_5_OR_NEWER
+               GameplayTagContainerTreeView tagTreeView = new(new TreeViewState<int>(), explicitTagsProperty, parentTagFilter);
+#else
                GameplayTagContainerTreeView tagTreeView = new(new TreeViewState(), explicitTagsProperty, parentTagFilter);
+#endif
                Rect activatorRect = editButtonRect;
                activatorRect.width = position.width;
                tagTreeView.ShowPopupWindow(activatorRect, 280f);

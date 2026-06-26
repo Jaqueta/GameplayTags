@@ -11,8 +11,13 @@ namespace BandoWare.GameplayTags.Editor
       private Action m_OnSelectionChange;
       private SerializedProperty m_TagNameProperty;
 
+#if UNITY_6000_5_OR_NEWER
+      public GameplayTagTreeView(TreeViewState<int> treeViewState, SerializedProperty tagProperty, Action onSelectionChange)
+      : base(treeViewState)
+#else
       public GameplayTagTreeView(TreeViewState treeViewState, SerializedProperty tagProperty, Action onSelectionChange)
       : base(treeViewState)
+#endif
       {
          m_OnSelectionChange = onSelectionChange;
          m_TagNameProperty = tagProperty.FindPropertyRelative("m_Name");
@@ -41,8 +46,11 @@ namespace BandoWare.GameplayTags.Editor
             m_TagNameProperty.serializedObject.ApplyModifiedProperties();
          }
       }
-
+#if UNITY_6000_5_OR_NEWER
+      protected override bool CanMultiSelect(TreeViewItem<int> item)
+#else
       protected override bool CanMultiSelect(TreeViewItem item)
+#endif
       {
          return false;
       }
